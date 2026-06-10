@@ -1,0 +1,48 @@
+package httpx
+
+import (
+	"net/http"
+
+	"vector-task-api/internal/auth"
+	"vector-task-api/internal/config"
+	"vector-task-api/internal/task"
+
+	"github.com/go-chi/chi/v5"
+	"github.com/go-chi/chi/v5/middleware"
+)
+
+type Dependencies struct {
+	Auth   *auth.Service
+	Tasks  *task.Service
+	Config config.Config
+}
+
+func NewRouter(deps Dependencies) http.Handler {
+	r := chi.NewRouter()
+	r.Use(middleware.RequestID)
+	r.Use(middleware.RealIP)
+	r.Use(middleware.Recoverer)
+	r.Use(cors(deps.Config.CORSOrigin))
+
+	authHandler := authEndpoints{service: deps.Auth}
+	taskHandler := taskEndpoints{service: deps.Tasks}
+
+	r.Get("/health", func(w http.ResponseWriter, r *http.Request) {
+		writeJSON(w, http.StatusOK, map[string]string{"status": "ok"})
+	})
+	r.Route("/auth", func(r chi.Router) {
+		r.Post("/signup", authHandler.signUp)
+		r.Post("/login", authHandler.login)
+		r.With(requireAuth(deps.Auth)).Get("/me", authHandler.me)
+	})
+	r.Group(func(r chi.Router) {
+		r.Use(requireAuth(deps.Auth))
+		r.Post("/tasks", taskHandler.create)
+		r.Get("/tasks", taskHandler.list)
+		r.Get("/tasks/{id}", taskHandler.get)
+		r.Patch("/tasks/{id}", taskHandler.update)
+		r.Delete("/tasks/{id}", taskHandler.delete)
+		r.With(requireAdmin).Get("/admin/tasks", taskHandler.adminList)
+	})
+	return r
+}
