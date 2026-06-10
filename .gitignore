@@ -1,0 +1,16 @@
+.DS_Store
+.env
+.env.local
+.env.*.local
+
+node_modules/
+.next/
+out/
+coverage/
+
+*.log
+dist/
+tmp/
+
+services/api/bin/
+services/api/.air.toml
