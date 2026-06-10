@@ -1,15 +1,43 @@
 "use client";
 
+import { useState } from "react";
+
 import { Pagination } from "@/components/tasks/pagination";
 import { TaskFilters } from "@/components/tasks/task-filters";
 import { TaskForm } from "@/components/tasks/task-form";
 import { TaskList } from "@/components/tasks/task-list";
 import { TaskOverview } from "@/components/tasks/task-overview";
 import { useTaskDashboard } from "@/components/tasks/use-task-dashboard";
+import { ConfirmDialog } from "@/components/ui/confirm-dialog";
 import { Drawer } from "@/components/ui/drawer";
+import { Task } from "@/types/task";
+
+type PendingAction = {
+  task: Task;
+  type: "complete" | "delete";
+} | null;
 
 export function TaskDashboard() {
   const dashboard = useTaskDashboard();
+  const [pendingAction, setPendingAction] = useState<PendingAction>(null);
+  const [confirming, setConfirming] = useState(false);
+
+  const confirmation = getConfirmationCopy(pendingAction);
+
+  async function confirmPendingAction() {
+    if (!pendingAction) return;
+    setConfirming(true);
+    try {
+      if (pendingAction.type === "complete") {
+        await dashboard.completeTask(pendingAction.task);
+      } else {
+        await dashboard.deleteTask(pendingAction.task);
+      }
+      setPendingAction(null);
+    } finally {
+      setConfirming(false);
+    }
+  }
 
   return (
     <div className="flex h-full min-h-0 flex-col overflow-hidden">
@@ -25,8 +53,8 @@ export function TaskDashboard() {
             error={dashboard.error}
             loading={dashboard.loading}
             tasks={dashboard.data.items}
-            onComplete={dashboard.completeTask}
-            onDelete={dashboard.deleteTask}
+            onComplete={(task) => setPendingAction({ task, type: "complete" })}
+            onDelete={(task) => setPendingAction({ task, type: "delete" })}
             onEdit={dashboard.openForm}
           />
           <Pagination
@@ -52,6 +80,36 @@ export function TaskDashboard() {
           onSubmit={dashboard.saveTask}
         />
       </Drawer>
+      <ConfirmDialog
+        busy={confirming}
+        confirmLabel={confirmation.confirmLabel}
+        description={confirmation.description}
+        open={pendingAction !== null}
+        title={confirmation.title}
+        variant={confirmation.variant}
+        onCancel={() => setPendingAction(null)}
+        onConfirm={confirmPendingAction}
+      />
     </div>
   );
+}
+
+function getConfirmationCopy(action: PendingAction) {
+  if (action?.type === "delete") {
+    return {
+      confirmLabel: "Delete task",
+      description: `This will permanently delete "${action.task.title}". This action cannot be undone.`,
+      title: "Delete this task?",
+      variant: "danger" as const,
+    };
+  }
+
+  return {
+    confirmLabel: "Mark complete",
+    description: action
+      ? `This will move "${action.task.title}" to completed status.`
+      : "Confirm this task action.",
+    title: "Mark task as complete?",
+    variant: "primary" as const,
+  };
 }
