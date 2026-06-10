@@ -4,6 +4,8 @@ import { cn } from "@/lib/utils";
 
 type IconName =
   | "check"
+  | "check-line"
+  | "chevron-down"
   | "chevron-left"
   | "chevron-right"
   | "clipboard"
@@ -27,6 +29,8 @@ type AppIconProps = Omit<SVGProps<SVGSVGElement>, "name"> & {
 
 const paths: Record<IconName, string[]> = {
   check: ["M9 12l2 2 4-5", "M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"],
+  "check-line": ["M20 6 9 17l-5-5"],
+  "chevron-down": ["m6 9 6 6 6-6"],
   "chevron-left": ["m15 18-6-6 6-6"],
   "chevron-right": ["m9 18 6-6-6-6"],
   clipboard: ["M9 5h6", "M9 3h6a2 2 0 0 1 2 2v1H7V5a2 2 0 0 1 2-2Z", "M7 5H5a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-2", "M8 12h8", "M8 16h5"],

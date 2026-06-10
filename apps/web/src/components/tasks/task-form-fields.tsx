@@ -1,6 +1,7 @@
 "use client";
 
-import { FieldError, Input, Label, Select, Textarea } from "@/components/ui/field";
+import { FieldError, Input, Label, Textarea } from "@/components/ui/field";
+import { Select, SelectOption } from "@/components/ui/select";
 import { FieldErrors, TaskPriority, TaskStatus } from "@/types/task";
 
 export type TaskFormState = {
@@ -16,6 +17,19 @@ type TaskFormFieldsProps = {
   errors: FieldErrors;
   onChange: (payload: TaskFormState) => void;
 };
+
+const statusOptions: SelectOption[] = [
+  { label: "Todo", value: "todo" },
+  { label: "In progress", value: "in_progress" },
+  { label: "Completed", value: "completed" },
+];
+
+const priorityOptions: SelectOption[] = [
+  { label: "Low", value: "low" },
+  { label: "Medium", value: "medium" },
+  { label: "High", value: "high" },
+  { label: "Urgent", value: "urgent" },
+];
 
 export function TaskFormFields({ payload, errors, onChange }: TaskFormFieldsProps) {
   return (
@@ -43,26 +57,19 @@ export function TaskFormFields({ payload, errors, onChange }: TaskFormFieldsProp
           <Label htmlFor="status">Status</Label>
           <Select
             id="status"
+            options={statusOptions}
             value={payload.status}
-            onChange={(event) => onChange({ ...payload, status: event.target.value as TaskStatus })}
-          >
-            <option value="todo">Todo</option>
-            <option value="in_progress">In progress</option>
-            <option value="completed">Completed</option>
-          </Select>
+            onValueChange={(status) => onChange({ ...payload, status: status as TaskStatus })}
+          />
         </div>
         <div className="grid gap-2">
           <Label htmlFor="priority">Priority</Label>
           <Select
             id="priority"
+            options={priorityOptions}
             value={payload.priority}
-            onChange={(event) => onChange({ ...payload, priority: event.target.value as TaskPriority })}
-          >
-            <option value="low">Low</option>
-            <option value="medium">Medium</option>
-            <option value="high">High</option>
-            <option value="urgent">Urgent</option>
-          </Select>
+            onValueChange={(priority) => onChange({ ...payload, priority: priority as TaskPriority })}
+          />
         </div>
       </div>
       <div className="grid gap-2">
