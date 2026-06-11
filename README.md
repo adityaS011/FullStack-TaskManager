@@ -19,7 +19,7 @@ apps/web/src/context     Client auth state and session persistence
 apps/web/src/lib         API client and shared frontend helpers
 services/api             Go REST API
 services/api/cmd/api     Application entrypoint and dependency wiring
-services/api/internal    Auth, task, database, HTTP, config, validation packages
+services/api/internal    Auth, task, realtime, database, HTTP, config, validation packages
 services/api/internal/database/migrations  SQL schema managed by the API at startup
 .github/workflows        CI checks for API tests and web lint/build
 ```
@@ -81,6 +81,7 @@ npm run dev:api
 - `PATCH /tasks/{id}`
 - `DELETE /tasks/{id}`
 - `GET /admin/tasks` for admin users
+- `GET /ws/tasks?token=<jwt>` for task mutation WebSocket events
 
 Task routes require `Authorization: Bearer <token>`. Members only access their own tasks. Admin users are assigned by listing signup emails in `ADMIN_EMAILS`.
 
@@ -92,13 +93,14 @@ Task routes require `Authorization: Bearer <token>`. Members only access their o
 - Client-side validation and consistent API validation errors
 - Loading, empty, and error states
 - Optimistic complete/delete UI with rollback on failure
+- Real-time task refreshes via WebSocket broadcasts
 - Persisted auth state and persisted dark mode
 - Dockerized local setup and CI pipeline
-- Backend unit tests for auth, validation, and task list behavior
+- Backend unit tests for auth, validation, realtime event visibility, and task list behavior
 
 ## Assumptions And Trade-Offs
 
 - JWTs are stored in local storage for assessment simplicity. A production consumer app should consider httpOnly refresh-token cookies.
 - Admin access is opt-in via `ADMIN_EMAILS`, avoiding a public role selector during signup.
 - An `activity_logs` table is included for future auditing, but the current UI does not expose activity history.
-- File attachments and real-time updates are left as future extensions to keep the core assignment focused and reliable.
+- File attachments are left as a future extension to keep the core assignment focused and reliable.

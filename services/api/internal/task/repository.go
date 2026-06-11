@@ -28,20 +28,16 @@ func (r *Repository) Create(ctx context.Context, userID string, input CreateInpu
 	`, userID, input.Title, input.Description, input.Status, input.Priority, input.DueDate))
 }
 
-func (r *Repository) Delete(ctx context.Context, id, userID string, isAdmin bool) error {
+func (r *Repository) Delete(ctx context.Context, id, userID string, isAdmin bool) (Task, error) {
 	sqlText, args := `DELETE FROM tasks WHERE id = $1`, []any{id}
 	if !isAdmin {
 		sqlText += " AND user_id = $2"
 		args = append(args, userID)
 	}
-	result, err := r.pool.Exec(ctx, sqlText, args...)
-	if err != nil {
-		return err
-	}
-	if result.RowsAffected() == 0 {
-		return ErrTaskNotFound
-	}
-	return nil
+	sqlText += `
+		RETURNING id, user_id, ''::text, title, description, status, priority, due_date, created_at, updated_at
+	`
+	return scanTask(r.pool.QueryRow(ctx, sqlText, args...))
 }
 
 func (r *Repository) Get(ctx context.Context, id, userID string, isAdmin bool) (Task, error) {

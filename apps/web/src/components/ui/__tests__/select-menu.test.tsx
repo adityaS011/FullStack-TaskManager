@@ -97,5 +97,6 @@ describe('SelectMenu', () => {
     const selectedOption = screen.getByRole('option', { name: 'Option 1' })
     const iconContainer = selectedOption.querySelector('span')
     expect(iconContainer).not.toBeEmptyDOMElement()
+    
   })
 })

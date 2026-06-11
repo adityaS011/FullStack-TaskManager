@@ -64,6 +64,13 @@ function queryString(params: TaskListParams) {
   return query.toString();
 }
 
+function websocketURL(path: string, token: string) {
+  const url = new URL(path, API_BASE_URL);
+  url.protocol = url.protocol === "https:" ? "wss:" : "ws:";
+  url.searchParams.set("token", token);
+  return url.toString();
+}
+
 export const api = {
   login(email: string, password: string) {
     return request<AuthResponse>("/auth/login", {
@@ -99,5 +106,8 @@ export const api = {
   },
   deleteTask(id: string, token: string) {
     return request<void>(`/tasks/${id}`, { method: "DELETE", token });
+  },
+  taskEventsURL(token: string) {
+    return websocketURL("/ws/tasks", token);
   },
 };
