@@ -20,7 +20,7 @@ type TaskFiltersProps = {
 };
 
 const statusOptions: SelectOption[] = [
-  { label: "All statuses", value: "" },
+  { label: "All", value: "" },
   { label: "Todo", value: "todo" },
   { label: "In progress", value: "in_progress" },
   { label: "Completed", value: "completed" },
