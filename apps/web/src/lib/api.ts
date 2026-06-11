@@ -5,6 +5,7 @@ import {
   TaskListParams,
   TaskListResponse,
   TaskPayload,
+  TaskScope,
   User,
 } from "@/types/task";
 
@@ -87,8 +88,9 @@ export const api = {
   me(token: string) {
     return request<User>("/auth/me", { token });
   },
-  listTasks(params: TaskListParams, token: string) {
-    return request<TaskListResponse>(`/tasks?${queryString(params)}`, { token });
+  listTasks(params: TaskListParams, token: string, scope: TaskScope = "mine") {
+    const path = scope === "all" ? "/admin/tasks" : "/tasks";
+    return request<TaskListResponse>(`${path}?${queryString(params)}`, { token });
   },
   createTask(payload: TaskPayload, token: string) {
     return request<Task>("/tasks", {

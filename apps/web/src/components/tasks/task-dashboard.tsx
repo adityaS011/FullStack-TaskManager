@@ -7,15 +7,13 @@ import { TaskFilters } from "@/components/tasks/task-filters";
 import { TaskForm } from "@/components/tasks/task-form";
 import { TaskList } from "@/components/tasks/task-list";
 import { TaskOverview } from "@/components/tasks/task-overview";
+import { TaskScopeToggle } from "@/components/tasks/task-scope-toggle";
 import { useTaskDashboard } from "@/components/tasks/use-task-dashboard";
 import { ConfirmDialog } from "@/components/ui/confirm-dialog";
 import { Drawer } from "@/components/ui/drawer";
 import { Task } from "@/types/task";
 
-type PendingAction = {
-  task: Task;
-  type: "complete" | "delete";
-} | null;
+type PendingAction = { task: Task; type: "complete" | "delete" } | null;
 
 export function TaskDashboard() {
   const dashboard = useTaskDashboard();
@@ -42,6 +40,11 @@ export function TaskDashboard() {
   return (
     <div className="flex h-full min-h-0 flex-col overflow-hidden">
       <TaskOverview data={dashboard.data} filters={dashboard.filters} />
+      <TaskScopeToggle
+        canViewAllTasks={dashboard.canViewAllTasks}
+        scope={dashboard.scope}
+        onScopeChange={dashboard.updateScope}
+      />
       <TaskFilters
         filters={dashboard.filters}
         onChange={dashboard.updateFilters}

@@ -52,6 +52,21 @@ func TestListNormalizesUnsafeFilters(t *testing.T) {
 	}
 }
 
+func TestListPreservesAdminScope(t *testing.T) {
+	store := &fakeTaskStore{}
+	service := NewService(store)
+
+	_, err := service.List(context.Background(), ListFilter{
+		UserID: "admin-1", IsAdmin: true, Page: 1, PageSize: 10,
+	})
+	if err != nil {
+		t.Fatalf("expected list to succeed, got %v", err)
+	}
+	if !store.filter.IsAdmin {
+		t.Fatal("expected admin list scope to reach the store")
+	}
+}
+
 func TestUpdateRequiresAtLeastOneChange(t *testing.T) {
 	service := NewService(&fakeTaskStore{})
 	_, _, err := service.Update(context.Background(), "task-1", "user-1", false, UpdateInput{})

@@ -12,6 +12,7 @@ export type TaskStatus = "todo" | "in_progress" | "completed";
 export type TaskPriority = "low" | "medium" | "high" | "urgent";
 export type SortKey = "created_at" | "due_date" | "priority";
 export type SortDirection = "asc" | "desc";
+export type TaskScope = "mine" | "all";
 
 export type Task = {
   id: string;

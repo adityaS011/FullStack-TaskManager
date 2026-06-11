@@ -83,12 +83,13 @@ npm run dev:api
 - `GET /admin/tasks` for admin users
 - `GET /ws/tasks?token=<jwt>` for task mutation WebSocket events
 
-Task routes require `Authorization: Bearer <token>`. Members only access their own tasks. Admin users are assigned by listing signup emails in `ADMIN_EMAILS`.
+Task routes require `Authorization: Bearer <token>`. Members only access their own tasks. Admin users are assigned by listing signup emails in `ADMIN_EMAILS`; those users can open the dashboard's "All users" view backed by `/admin/tasks`.
 
 ## Implemented Features
 
 - Signup/login with bcrypt password hashing and JWT auth
 - Protected task CRUD with per-user authorization
+- Admin all-users task view with owner emails
 - Status filtering, title search, pagination, and combined sorting
 - Client-side validation and consistent API validation errors
 - Loading, empty, and error states
@@ -96,7 +97,7 @@ Task routes require `Authorization: Bearer <token>`. Members only access their o
 - Real-time task refreshes via WebSocket broadcasts
 - Persisted auth state and persisted dark mode
 - Dockerized local setup and CI pipeline
-- Backend unit tests for auth, validation, realtime event visibility, and task list behavior
+- Backend and frontend tests for auth, validation, realtime visibility, admin scope, and task UI behavior
 
 ## Assumptions And Trade-Offs
 

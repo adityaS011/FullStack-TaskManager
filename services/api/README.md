@@ -18,11 +18,13 @@ internal/validation     Shared validation helpers
 ## Request Flow
 
 1. `cmd/api/main.go` loads config, connects to Postgres, runs migrations, and builds services.
-2. `httpx/router.go` maps routes, applies auth middleware, and exposes `/ws/tasks`.
+2. `httpx/router.go` maps routes, applies auth/admin middleware, and exposes `/ws/tasks`.
 3. Handlers decode JSON/query params and call the domain service.
 4. Services validate/normalize inputs and enforce behavior.
 5. Repositories execute PostgreSQL queries and return domain models.
 6. Successful task mutations publish WebSocket events to affected members and admins.
+
+Admin users are assigned through `ADMIN_EMAILS`. They can call `GET /admin/tasks` to list all users' tasks with owner email metadata.
 
 ## Run
 
