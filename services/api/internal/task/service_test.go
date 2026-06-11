@@ -13,8 +13,8 @@ func (f *fakeTaskStore) Create(ctx context.Context, userID string, input CreateI
 	return Task{}, nil
 }
 
-func (f *fakeTaskStore) Delete(ctx context.Context, id, userID string, isAdmin bool) error {
-	return nil
+func (f *fakeTaskStore) Delete(ctx context.Context, id, userID string, isAdmin bool) (Task, error) {
+	return Task{}, nil
 }
 
 func (f *fakeTaskStore) Get(ctx context.Context, id, userID string, isAdmin bool) (Task, error) {

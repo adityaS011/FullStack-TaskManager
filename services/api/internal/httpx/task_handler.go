@@ -7,6 +7,7 @@ import (
 	"strings"
 	"time"
 
+	"vector-task-api/internal/realtime"
 	"vector-task-api/internal/task"
 	"vector-task-api/internal/validation"
 
@@ -14,6 +15,7 @@ import (
 )
 
 type taskEndpoints struct {
+	events  *realtime.Hub
 	service *task.Service
 }
 
@@ -43,15 +45,18 @@ func (h taskEndpoints) create(w http.ResponseWriter, r *http.Request) {
 		writeValidationOrService(w, fields, err)
 		return
 	}
+	h.publish(realtime.TaskCreated, currentUser(r).ID, created)
 	writeJSON(w, http.StatusCreated, created)
 }
 
 func (h taskEndpoints) delete(w http.ResponseWriter, r *http.Request) {
 	user := currentUser(r)
-	if err := h.service.Delete(r.Context(), chi.URLParam(r, "id"), user.ID, user.Role == "admin"); err != nil {
+	deleted, err := h.service.Delete(r.Context(), chi.URLParam(r, "id"), user.ID, user.Role == "admin")
+	if err != nil {
 		writeServiceError(w, err)
 		return
 	}
+	h.publish(realtime.TaskDeleted, user.ID, deleted)
 	w.WriteHeader(http.StatusNoContent)
 }
 
@@ -104,7 +109,17 @@ func (h taskEndpoints) update(w http.ResponseWriter, r *http.Request) {
 		writeValidationOrService(w, fields, err)
 		return
 	}
+	h.publish(realtime.TaskUpdated, user.ID, updated)
 	writeJSON(w, http.StatusOK, updated)
+}
+
+func (h taskEndpoints) publish(eventType, actorID string, item task.Task) {
+	if h.events == nil {
+		return
+	}
+	h.events.Publish(realtime.Event{
+		Type: eventType, TaskID: item.ID, UserID: item.UserID, ActorID: actorID,
+	})
 }
 
 func decodeTaskRequest(w http.ResponseWriter, r *http.Request) (taskRequest, bool) {

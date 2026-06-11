@@ -51,6 +51,13 @@ export type TaskListResponse = {
   totalPages: number;
 };
 
+export type TaskRealtimeEvent = {
+  type: "task.created" | "task.updated" | "task.deleted";
+  taskId: string;
+  userId: string;
+  actorId: string;
+};
+
 export type AuthResponse = {
   token: string;
   user: User;

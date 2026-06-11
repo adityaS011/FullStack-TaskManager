@@ -17,7 +17,7 @@ var (
 
 type Store interface {
 	Create(ctx context.Context, userID string, input CreateInput) (Task, error)
-	Delete(ctx context.Context, id, userID string, isAdmin bool) error
+	Delete(ctx context.Context, id, userID string, isAdmin bool) (Task, error)
 	Get(ctx context.Context, id, userID string, isAdmin bool) (Task, error)
 	List(ctx context.Context, filter ListFilter) (ListResult, error)
 	Update(ctx context.Context, id, userID string, isAdmin bool, input UpdateInput) (Task, error)
@@ -40,7 +40,7 @@ func (s *Service) Create(ctx context.Context, userID string, input CreateInput) 
 	return item, nil, err
 }
 
-func (s *Service) Delete(ctx context.Context, id, userID string, isAdmin bool) error {
+func (s *Service) Delete(ctx context.Context, id, userID string, isAdmin bool) (Task, error) {
 	return s.store.Delete(ctx, id, userID, isAdmin)
 }
 
