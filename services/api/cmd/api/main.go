@@ -14,6 +14,7 @@ import (
 	"vector-task-api/internal/config"
 	"vector-task-api/internal/database"
 	"vector-task-api/internal/httpx"
+	"vector-task-api/internal/realtime"
 	"vector-task-api/internal/task"
 )
 
@@ -38,10 +39,16 @@ func main() {
 	taskRepo := task.NewRepository(pool)
 	authService := auth.NewService(userRepo, cfg.JWTSecret, cfg.AccessTokenTTL, cfg.AdminEmails)
 	taskService := task.NewService(taskRepo)
+	realtimeHub := realtime.NewHub()
+	hubCtx, stopHub := context.WithCancel(context.Background())
+	defer stopHub()
+	go realtimeHub.Run(hubCtx)
 
 	server := &http.Server{
-		Addr:         ":" + cfg.Port,
-		Handler:      httpx.NewRouter(httpx.Dependencies{Auth: authService, Tasks: taskService, Config: cfg}),
+		Addr: ":" + cfg.Port,
+		Handler: httpx.NewRouter(httpx.Dependencies{
+			Auth: authService, Config: cfg, Realtime: realtimeHub, Tasks: taskService,
+		}),
 		ReadTimeout:  10 * time.Second,
 		WriteTimeout: 10 * time.Second,
 		IdleTimeout:  60 * time.Second,

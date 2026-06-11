@@ -5,6 +5,7 @@ import (
 
 	"vector-task-api/internal/auth"
 	"vector-task-api/internal/config"
+	"vector-task-api/internal/realtime"
 	"vector-task-api/internal/task"
 
 	"github.com/go-chi/chi/v5"
@@ -12,9 +13,10 @@ import (
 )
 
 type Dependencies struct {
-	Auth   *auth.Service
-	Tasks  *task.Service
-	Config config.Config
+	Auth     *auth.Service
+	Config   config.Config
+	Realtime *realtime.Hub
+	Tasks    *task.Service
 }
 
 func NewRouter(deps Dependencies) http.Handler {
@@ -25,7 +27,10 @@ func NewRouter(deps Dependencies) http.Handler {
 	r.Use(cors(deps.Config.CORSOrigin))
 
 	authHandler := authEndpoints{service: deps.Auth}
-	taskHandler := taskEndpoints{service: deps.Tasks}
+	realtimeHandler := realtimeEndpoints{
+		auth: deps.Auth, hub: deps.Realtime, origin: deps.Config.CORSOrigin,
+	}
+	taskHandler := taskEndpoints{events: deps.Realtime, service: deps.Tasks}
 
 	r.Get("/health", func(w http.ResponseWriter, r *http.Request) {
 		writeJSON(w, http.StatusOK, map[string]string{"status": "ok"})
@@ -35,6 +40,7 @@ func NewRouter(deps Dependencies) http.Handler {
 		r.Post("/login", authHandler.login)
 		r.With(requireAuth(deps.Auth)).Get("/me", authHandler.me)
 	})
+	r.Get("/ws/tasks", realtimeHandler.tasks)
 	r.Group(func(r chi.Router) {
 		r.Use(requireAuth(deps.Auth))
 		r.Post("/tasks", taskHandler.create)

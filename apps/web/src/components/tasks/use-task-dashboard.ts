@@ -4,18 +4,15 @@ import { useCallback, useEffect, useState } from "react";
 
 import { TaskFiltersState } from "@/components/tasks/task-filters";
 import { useDebouncedValue } from "@/components/tasks/use-debounced-value";
+import { useTaskRealtime } from "@/components/tasks/use-task-realtime";
 import { useAuth } from "@/context/auth-context";
 import { api, ApiError } from "@/lib/api";
 import { FieldErrors, Task, TaskListResponse, TaskPayload } from "@/types/task";
 
 export const pageSize = 6;
-export const initialFilters: TaskFiltersState = {
-  q: "", status: "", sort: "created_at", direction: "desc",
-};
+export const initialFilters: TaskFiltersState = { q: "", status: "", sort: "created_at", direction: "desc" };
 
-const emptyData: TaskListResponse = {
-  items: [], total: 0, page: 1, pageSize, totalPages: 0,
-};
+const emptyData: TaskListResponse = { items: [], total: 0, page: 1, pageSize, totalPages: 0 };
 
 export function useTaskDashboard() {
   const { token } = useAuth();
@@ -30,9 +27,9 @@ export function useTaskDashboard() {
   const [serverErrors, setServerErrors] = useState<FieldErrors>({});
   const debouncedSearch = useDebouncedValue(filters.q);
 
-  const loadTasks = useCallback(async () => {
+  const loadTasks = useCallback(async (options?: { quiet?: boolean }) => {
     if (!token) return;
-    setLoading(true);
+    if (!options?.quiet) setLoading(true);
     setError("");
     try {
       const result = await api.listTasks({ ...filters, q: debouncedSearch, page, pageSize }, token);
@@ -40,7 +37,7 @@ export function useTaskDashboard() {
     } catch (err) {
       setError(err instanceof ApiError ? err.message : "Unable to load tasks.");
     } finally {
-      setLoading(false);
+      if (!options?.quiet) setLoading(false);
     }
   }, [debouncedSearch, filters, page, token]);
 
@@ -50,6 +47,10 @@ export function useTaskDashboard() {
     }, 0);
     return () => window.clearTimeout(timeout);
   }, [loadTasks]);
+
+  useTaskRealtime(token, () => {
+    void loadTasks({ quiet: true });
+  });
 
   async function saveTask(payload: TaskPayload) {
     if (!token) return;

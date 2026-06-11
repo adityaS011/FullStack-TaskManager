@@ -37,7 +37,7 @@ export function SelectMenu({
             className={cn(
               "flex h-10 w-full items-center gap-2 rounded-md px-2.5 text-left text-sm font-medium transition",
               active && "bg-muted text-foreground",
-              selected ? "text-blue-800 dark:text-blue-300" : "text-foreground",
+              selected ? "text-blue-950 dark:text-blue-100" : "text-foreground",
               option.disabled && "cursor-not-allowed opacity-20",
             )}
             disabled={option.disabled}
