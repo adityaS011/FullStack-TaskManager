@@ -5,7 +5,8 @@ on:
   pull_request:
 
 jobs:
-  api:
+  api-tests:
+    name: API Tests
     runs-on: ubuntu-latest
     defaults:
       run:
@@ -18,7 +19,8 @@ jobs:
           cache-dependency-path: services/api/go.sum
       - run: go test ./...
 
-  web:
+  web-tests:
+    name: Web Tests
     runs-on: ubuntu-latest
     defaults:
       run:
