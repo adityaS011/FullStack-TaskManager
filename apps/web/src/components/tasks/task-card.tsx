@@ -1,5 +1,7 @@
 "use client";
 
+import Link from "next/link";
+
 import { TaskActions } from "@/components/tasks/task-actions";
 import { StatusBadge } from "@/components/ui/status-badge";
 import { formatDate } from "@/lib/utils";
@@ -17,7 +19,12 @@ export function TaskCard({ task, onComplete, onDelete, onEdit }: TaskCardProps) 
     <article className="rounded-lg border border-border bg-surface p-4 shadow-sm">
       <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
         <div className="min-w-0">
-          <h3 className="break-words text-base font-semibold">{task.title}</h3>
+          <Link
+            className="break-words text-base font-semibold transition hover:text-blue-700 dark:hover:text-blue-200"
+            href={`/tasks/${task.id}`}
+          >
+            {task.title}
+          </Link>
           {task.description && (
             <p className="mt-2 line-clamp-3 break-words text-sm leading-6 text-muted-foreground">
               {task.description}

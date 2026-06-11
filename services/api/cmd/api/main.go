@@ -10,6 +10,7 @@ import (
 	"syscall"
 	"time"
 
+	"vector-task-api/internal/activity"
 	"vector-task-api/internal/auth"
 	"vector-task-api/internal/config"
 	"vector-task-api/internal/database"
@@ -37,8 +38,10 @@ func main() {
 
 	userRepo := auth.NewRepository(pool)
 	taskRepo := task.NewRepository(pool)
+	activityRepo := activity.NewRepository(pool)
 	authService := auth.NewService(userRepo, cfg.JWTSecret, cfg.AccessTokenTTL, cfg.AdminEmails)
 	taskService := task.NewService(taskRepo)
+	activityService := activity.NewService(activityRepo)
 	realtimeHub := realtime.NewHub()
 	hubCtx, stopHub := context.WithCancel(context.Background())
 	defer stopHub()
@@ -47,7 +50,8 @@ func main() {
 	server := &http.Server{
 		Addr: ":" + cfg.Port,
 		Handler: httpx.NewRouter(httpx.Dependencies{
-			Auth: authService, Config: cfg, Realtime: realtimeHub, Tasks: taskService,
+			Activity: activityService, Auth: authService, Config: cfg,
+			Realtime: realtimeHub, Tasks: taskService,
 		}),
 		ReadTimeout:  10 * time.Second,
 		WriteTimeout: 10 * time.Second,

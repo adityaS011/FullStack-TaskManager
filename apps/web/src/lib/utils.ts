@@ -11,6 +11,17 @@ export function formatDate(value?: string | null) {
   }).format(new Date(value));
 }
 
+export function formatDateTime(value?: string | null) {
+  if (!value) return "";
+  return new Intl.DateTimeFormat("en", {
+    month: "short",
+    day: "numeric",
+    year: "numeric",
+    hour: "numeric",
+    minute: "2-digit",
+  }).format(new Date(value));
+}
+
 export function toDateInput(value?: string | null) {
   if (!value) return "";
   return new Date(value).toISOString().slice(0, 10);

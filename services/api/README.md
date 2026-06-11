@@ -10,6 +10,7 @@ internal/config         Environment parsing and defaults
 internal/database       PostgreSQL connection and embedded migrations
 internal/auth           User repository, password hashing, JWT issuing/validation
 internal/task           Task domain service, validation, and PostgreSQL repository
+internal/activity       Activity log metadata, service, and PostgreSQL repository
 internal/realtime       WebSocket hub for live task mutation events
 internal/httpx          Router, middleware, request handlers, response shape
 internal/validation     Shared validation helpers
@@ -22,9 +23,10 @@ internal/validation     Shared validation helpers
 3. Handlers decode JSON/query params and call the domain service.
 4. Services validate/normalize inputs and enforce behavior.
 5. Repositories execute PostgreSQL queries and return domain models.
-6. Successful task mutations publish WebSocket events to affected members and admins.
+6. Successful task mutations write activity logs and publish WebSocket events to affected members and admins.
 
 Admin users are assigned through `ADMIN_EMAILS`. They can call `GET /admin/tasks` to list all users' tasks with owner email metadata.
+Task activity is available through `GET /tasks/{id}/activity` after the same task access check used by `GET /tasks/{id}`.
 
 ## Run
 

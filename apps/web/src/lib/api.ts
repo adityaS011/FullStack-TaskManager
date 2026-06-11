@@ -1,4 +1,5 @@
 import {
+  ActivityLog,
   AuthResponse,
   FieldErrors,
   Task,
@@ -44,11 +45,7 @@ async function request<T>(path: string, options: RequestOptions = {}) {
   const body = await response.json().catch(() => null);
   if (!response.ok) {
     const apiError = body?.error;
-    throw new ApiError(
-      apiError?.message ?? "Request failed.",
-      response.status,
-      apiError?.fields,
-    );
+    throw new ApiError(apiError?.message ?? "Request failed.", response.status, apiError?.fields);
   }
   return body as T;
 }
@@ -88,9 +85,15 @@ export const api = {
   me(token: string) {
     return request<User>("/auth/me", { token });
   },
+  getTask(id: string, token: string) {
+    return request<Task>(`/tasks/${id}`, { token });
+  },
   listTasks(params: TaskListParams, token: string, scope: TaskScope = "mine") {
     const path = scope === "all" ? "/admin/tasks" : "/tasks";
     return request<TaskListResponse>(`${path}?${queryString(params)}`, { token });
+  },
+  listTaskActivity(taskId: string, token: string) {
+    return request<ActivityLog[]>(`/tasks/${taskId}/activity`, { token });
   },
   createTask(payload: TaskPayload, token: string) {
     return request<Task>("/tasks", {

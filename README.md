@@ -78,6 +78,7 @@ npm run dev:api
 - `POST /tasks`
 - `GET /tasks?status=&q=&sort=&direction=&page=&pageSize=`
 - `GET /tasks/{id}`
+- `GET /tasks/{id}/activity`
 - `PATCH /tasks/{id}`
 - `DELETE /tasks/{id}`
 - `GET /admin/tasks` for admin users
@@ -90,6 +91,7 @@ Task routes require `Authorization: Bearer <token>`. Members only access their o
 - Signup/login with bcrypt password hashing and JWT auth
 - Protected task CRUD with per-user authorization
 - Admin all-users task view with owner emails
+- Task details page with activity timeline
 - Status filtering, title search, pagination, and combined sorting
 - Client-side validation and consistent API validation errors
 - Loading, empty, and error states
@@ -103,5 +105,5 @@ Task routes require `Authorization: Bearer <token>`. Members only access their o
 
 - JWTs are stored in local storage for assessment simplicity. A production consumer app should consider httpOnly refresh-token cookies.
 - Admin access is opt-in via `ADMIN_EMAILS`, avoiding a public role selector during signup.
-- An `activity_logs` table is included for future auditing, but the current UI does not expose activity history.
+- Activity history is retained for existing tasks. Deleted tasks cascade their activity with the current schema.
 - File attachments are left as a future extension to keep the core assignment focused and reliable.

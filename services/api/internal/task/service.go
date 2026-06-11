@@ -60,15 +60,24 @@ func (s *Service) List(ctx context.Context, filter ListFilter) (ListResult, erro
 }
 
 func (s *Service) Update(ctx context.Context, id, userID string, isAdmin bool, input UpdateInput) (Task, validation.FieldErrors, error) {
+	item, _, fields, err := s.UpdateWithSnapshot(ctx, id, userID, isAdmin, input)
+	return item, fields, err
+}
+
+func (s *Service) UpdateWithSnapshot(ctx context.Context, id, userID string, isAdmin bool, input UpdateInput) (Task, Task, validation.FieldErrors, error) {
 	fields := validateUpdate(input)
 	if fields.HasAny() {
-		return Task{}, fields, validationError()
+		return Task{}, Task{}, fields, validationError()
 	}
 	if isEmptyUpdate(input) {
-		return Task{}, nil, ErrNoChanges
+		return Task{}, Task{}, nil, ErrNoChanges
+	}
+	previous, err := s.store.Get(ctx, id, userID, isAdmin)
+	if err != nil {
+		return Task{}, Task{}, nil, err
 	}
 	item, err := s.store.Update(ctx, id, userID, isAdmin, normalizeUpdate(input))
-	return item, nil, err
+	return item, previous, nil, err
 }
 
 func normalizeFilter(filter ListFilter) ListFilter {

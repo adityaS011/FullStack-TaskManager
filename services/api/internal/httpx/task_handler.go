@@ -7,6 +7,7 @@ import (
 	"strings"
 	"time"
 
+	"vector-task-api/internal/activity"
 	"vector-task-api/internal/realtime"
 	"vector-task-api/internal/task"
 	"vector-task-api/internal/validation"
@@ -15,8 +16,9 @@ import (
 )
 
 type taskEndpoints struct {
-	events  *realtime.Hub
-	service *task.Service
+	activity *activity.Service
+	events   *realtime.Hub
+	service  *task.Service
 }
 
 type taskRequest struct {
@@ -45,6 +47,7 @@ func (h taskEndpoints) create(w http.ResponseWriter, r *http.Request) {
 		writeValidationOrService(w, fields, err)
 		return
 	}
+	h.recordActivity(r, activity.TaskCreated, created, activity.CreatedMetadata(created))
 	h.publish(realtime.TaskCreated, currentUser(r).ID, created)
 	writeJSON(w, http.StatusCreated, created)
 }
@@ -101,7 +104,7 @@ func (h taskEndpoints) update(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	user := currentUser(r)
-	updated, fields, err := h.service.Update(r.Context(), chi.URLParam(r, "id"), user.ID, user.Role == "admin", task.UpdateInput{
+	updated, previous, fields, err := h.service.UpdateWithSnapshot(r.Context(), chi.URLParam(r, "id"), user.ID, user.Role == "admin", task.UpdateInput{
 		Title: input.Title, Description: input.Description, Status: input.Status,
 		Priority: input.Priority, DueDate: dueDate,
 	})
@@ -109,8 +112,21 @@ func (h taskEndpoints) update(w http.ResponseWriter, r *http.Request) {
 		writeValidationOrService(w, fields, err)
 		return
 	}
+	metadata := activity.UpdatedMetadata(previous, updated)
+	if activity.HasChanges(metadata) {
+		h.recordActivity(r, activity.UpdateAction(metadata), updated, metadata)
+	}
 	h.publish(realtime.TaskUpdated, user.ID, updated)
 	writeJSON(w, http.StatusOK, updated)
+}
+
+func (h taskEndpoints) recordActivity(r *http.Request, action string, item task.Task, metadata activity.Metadata) {
+	if h.activity == nil {
+		return
+	}
+	_ = h.activity.Record(r.Context(), activity.CreateInput{
+		TaskID: item.ID, ActorID: currentUser(r).ID, Action: action, Metadata: metadata,
+	})
 }
 
 func (h taskEndpoints) publish(eventType, actorID string, item task.Task) {

@@ -59,6 +59,27 @@ export type TaskRealtimeEvent = {
   actorId: string;
 };
 
+export type ActivityChange = {
+  from: string | null;
+  to: string | null;
+};
+
+export type ActivityLog = {
+  id: string;
+  taskId: string;
+  actorId: string;
+  actorEmail: string;
+  action: "task.created" | "task.updated" | "task.completed";
+  metadata: {
+    changes?: Record<string, ActivityChange>;
+    title?: string;
+    status?: TaskStatus;
+    priority?: TaskPriority;
+    dueDate?: string | null;
+  };
+  createdAt: string;
+};
+
 export type AuthResponse = {
   token: string;
   user: User;

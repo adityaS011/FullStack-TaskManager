@@ -1,5 +1,7 @@
 "use client";
 
+import Link from "next/link";
+
 import { TaskActions } from "@/components/tasks/task-actions";
 import { StatusBadge } from "@/components/ui/status-badge";
 import { formatDate } from "@/lib/utils";
@@ -30,7 +32,12 @@ export function TaskTable({ tasks, onComplete, onDelete, onEdit }: TaskTableProp
             <tr className="group" key={task.id}>
               <Td>
                 <div className="max-w-xl">
-                  <p className="font-semibold text-foreground">{task.title}</p>
+                  <Link
+                    className="font-semibold text-foreground transition hover:text-blue-700 dark:hover:text-blue-200"
+                    href={`/tasks/${task.id}`}
+                  >
+                    {task.title}
+                  </Link>
                   {task.description && (
                     <p className="mt-1 line-clamp-2 text-sm leading-6 text-muted-foreground">
                       {task.description}

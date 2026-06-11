@@ -8,7 +8,7 @@ Next.js App Router frontend for the task manager.
 src/app                 Routes, global layout, and providers
 src/components/auth     Login/signup screens
 src/components/layout   Authenticated shell and theme toggle
-src/components/tasks    Dashboard, admin scope switch, filters, table/cards, drawer form, realtime hook
+src/components/tasks    Dashboard, task details, activity timeline, filters, drawer form, realtime hook
 src/components/ui       Small reusable UI primitives
 src/context             AuthProvider and persisted session state
 src/lib                 API client and formatting helpers
@@ -22,6 +22,7 @@ src/types               Shared task/auth TypeScript types
 - Create/edit opens in a drawer: bottom sheet on mobile, right drawer on desktop.
 - The task list scrolls internally so pagination remains visible.
 - Admin users see an "All users" scope that lists every task with owner email metadata.
+- Task titles open `/tasks/[id]`, which shows task metadata and activity history.
 - The dashboard listens to WebSocket task events and quietly refreshes the active list.
 
 ## Run

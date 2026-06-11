@@ -34,3 +34,4 @@ CREATE TABLE IF NOT EXISTS activity_logs (
 CREATE INDEX IF NOT EXISTS idx_tasks_user_status ON tasks(user_id, status);
 CREATE INDEX IF NOT EXISTS idx_tasks_user_created ON tasks(user_id, created_at DESC);
 CREATE INDEX IF NOT EXISTS idx_tasks_title_search ON tasks USING gin (to_tsvector('simple', title));
+CREATE INDEX IF NOT EXISTS idx_activity_logs_task_created ON activity_logs(task_id, created_at DESC);
