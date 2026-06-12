@@ -1,8 +1,7 @@
 "use client";
 
-import Link from "next/link";
-
 import { TaskActions } from "@/components/tasks/task-actions";
+import { useOpenTask } from "@/components/tasks/use-open-task";
 import { StatusBadge } from "@/components/ui/status-badge";
 import { formatDate } from "@/lib/utils";
 import { Task } from "@/types/task";
@@ -15,16 +14,22 @@ type TaskCardProps = {
 };
 
 export function TaskCard({ task, onComplete, onDelete, onEdit }: TaskCardProps) {
+  const navigation = useOpenTask(task.id);
+
   return (
-    <article className="rounded-lg border border-border bg-surface p-4 shadow-sm">
+    <article
+      aria-label={`Open ${task.title}`}
+      className="group cursor-pointer rounded-lg border border-border bg-surface p-4 shadow-sm transition hover:border-blue-200 hover:bg-muted/40 hover:shadow-md focus-visible:outline focus-visible:outline-2 focus-visible:outline-blue-600 dark:hover:border-blue-900"
+      role="link"
+      tabIndex={0}
+      onClick={navigation.onClick}
+      onKeyDown={navigation.onKeyDown}
+    >
       <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
         <div className="min-w-0">
-          <Link
-            className="break-words text-base font-semibold transition hover:text-blue-700 dark:hover:text-blue-200"
-            href={`/tasks/${task.id}`}
-          >
+          <p className="break-words text-base font-semibold transition group-hover:text-blue-700 dark:group-hover:text-blue-200">
             {task.title}
-          </Link>
+          </p>
           {task.description && (
             <p className="mt-2 line-clamp-3 break-words text-sm leading-6 text-muted-foreground">
               {task.description}
