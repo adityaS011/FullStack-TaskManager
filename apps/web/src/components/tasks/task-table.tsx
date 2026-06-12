@@ -19,29 +19,31 @@ type TaskRowProps = Omit<TaskTableProps, "tasks"> & {
 
 export function TaskTable({ tasks, onComplete, onDelete, onEdit }: TaskTableProps) {
   return (
-    <div className="hidden min-w-full overflow-x-auto md:block">
-      <table className="min-w-full border-separate border-spacing-0 text-left text-sm">
-        <thead className="sticky top-0 z-10 bg-surface text-xs uppercase tracking-wide text-muted-foreground">
-          <tr>
-            <Th className="w-[40%]">Task</Th>
-            <Th>Status</Th>
-            <Th>Priority</Th>
-            <Th>Due</Th>
-            <Th className="text-right">Actions</Th>
-          </tr>
-        </thead>
-        <tbody>
-          {tasks.map((task) => (
-            <TaskRow
-              key={task.id}
-              task={task}
-              onComplete={onComplete}
-              onDelete={onDelete}
-              onEdit={onEdit}
-            />
-          ))}
-        </tbody>
-      </table>
+    <div className="hidden md:block">
+      <div className="max-h-[600px] overflow-y-auto overflow-x-auto">
+        <table className="min-w-full border-separate border-spacing-0 text-left text-sm">
+          <thead className="sticky top-0 z-10 bg-surface text-xs uppercase tracking-wide text-muted-foreground shadow-sm">
+            <tr>
+              <Th className="w-[40%]">Task</Th>
+              <Th>Status</Th>
+              <Th>Priority</Th>
+              <Th>Due</Th>
+              <Th className="text-right">Actions</Th>
+            </tr>
+          </thead>
+          <tbody>
+            {tasks.map((task) => (
+              <TaskRow
+                key={task.id}
+                task={task}
+                onComplete={onComplete}
+                onDelete={onDelete}
+                onEdit={onEdit}
+              />
+            ))}
+          </tbody>
+        </table>
+      </div>
     </div>
   );
 }
