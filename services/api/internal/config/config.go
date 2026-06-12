@@ -12,6 +12,7 @@ type Config struct {
 	JWTSecret       string
 	CORSOrigin      string
 	AdminEmails     map[string]struct{}
+	UploadDir       string
 	AccessTokenTTL  time.Duration
 	ShutdownTimeout time.Duration
 }
@@ -23,6 +24,7 @@ func Load() Config {
 		JWTSecret:       getEnv("JWT_SECRET", "change-me-in-production"),
 		CORSOrigin:      getEnv("CORS_ORIGIN", "http://localhost:3000"),
 		AdminEmails:     parseEmailSet(os.Getenv("ADMIN_EMAILS")),
+		UploadDir:       getEnv("UPLOAD_DIR", "./.data/uploads"),
 		AccessTokenTTL:  getDuration("ACCESS_TOKEN_TTL", 24*time.Hour),
 		ShutdownTimeout: getDuration("SHUTDOWN_TIMEOUT", 10*time.Second),
 	}

@@ -4,6 +4,7 @@ import Link from "next/link";
 
 import { AppIcon } from "@/components/icons/app-icon";
 import { ActivityTimeline } from "@/components/tasks/activity-timeline";
+import { TaskAttachments } from "@/components/tasks/task-attachments";
 import { useTaskDetail } from "@/components/tasks/use-task-detail";
 import { StatusBadge } from "@/components/ui/status-badge";
 import { formatDate, formatDateTime } from "@/lib/utils";
@@ -13,7 +14,7 @@ type TaskDetailPageProps = {
 };
 
 export function TaskDetailPage({ taskId }: TaskDetailPageProps) {
-  const { activity, error, loading, task } = useTaskDetail(taskId);
+  const { activity, attachments, error, loading, refresh, task } = useTaskDetail(taskId);
 
   if (loading) {
     return (
@@ -66,6 +67,7 @@ export function TaskDetailPage({ taskId }: TaskDetailPageProps) {
             <Meta label="Updated" value={formatDateTime(task.updatedAt)} />
           </dl>
         </section>
+        <TaskAttachments attachments={attachments} taskId={task.id} onChanged={refresh} />
         <section className="rounded-lg border border-border bg-surface p-5 shadow-sm">
           <div className="mb-4">
             <h2 className="text-lg font-semibold">Activity</h2>

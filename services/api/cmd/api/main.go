@@ -11,6 +11,7 @@ import (
 	"time"
 
 	"vector-task-api/internal/activity"
+	"vector-task-api/internal/attachment"
 	"vector-task-api/internal/auth"
 	"vector-task-api/internal/config"
 	"vector-task-api/internal/database"
@@ -39,9 +40,12 @@ func main() {
 	userRepo := auth.NewRepository(pool)
 	taskRepo := task.NewRepository(pool)
 	activityRepo := activity.NewRepository(pool)
+	attachmentRepo := attachment.NewRepository(pool)
+	attachmentStorage := attachment.NewLocalStorage(cfg.UploadDir)
 	authService := auth.NewService(userRepo, cfg.JWTSecret, cfg.AccessTokenTTL, cfg.AdminEmails)
 	taskService := task.NewService(taskRepo)
 	activityService := activity.NewService(activityRepo)
+	attachmentService := attachment.NewService(attachmentRepo, attachmentStorage)
 	realtimeHub := realtime.NewHub()
 	hubCtx, stopHub := context.WithCancel(context.Background())
 	defer stopHub()
@@ -50,7 +54,7 @@ func main() {
 	server := &http.Server{
 		Addr: ":" + cfg.Port,
 		Handler: httpx.NewRouter(httpx.Dependencies{
-			Activity: activityService, Auth: authService, Config: cfg,
+			Activity: activityService, Attachments: attachmentService, Auth: authService, Config: cfg,
 			Realtime: realtimeHub, Tasks: taskService,
 		}),
 		ReadTimeout:  10 * time.Second,

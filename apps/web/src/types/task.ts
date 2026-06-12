@@ -59,6 +59,17 @@ export type TaskRealtimeEvent = {
   actorId: string;
 };
 
+export type TaskAttachment = {
+  id: string;
+  taskId: string;
+  uploadedBy: string;
+  uploaderEmail: string;
+  fileName: string;
+  contentType: string;
+  sizeBytes: number;
+  createdAt: string;
+};
+
 export type ActivityChange = {
   from: string | null;
   to: string | null;
@@ -69,10 +80,13 @@ export type ActivityLog = {
   taskId: string;
   actorId: string;
   actorEmail: string;
-  action: "task.created" | "task.updated" | "task.completed";
+  action: "attachment.added" | "attachment.deleted" | "task.created" | "task.updated" | "task.completed";
   metadata: {
     changes?: Record<string, ActivityChange>;
+    contentType?: string;
+    fileName?: string;
     title?: string;
+    sizeBytes?: number;
     status?: TaskStatus;
     priority?: TaskPriority;
     dueDate?: string | null;

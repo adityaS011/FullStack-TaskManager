@@ -1,8 +1,8 @@
 import {
   ActivityLog,
   AuthResponse,
-  FieldErrors,
   Task,
+  TaskAttachment,
   TaskListParams,
   TaskListResponse,
   TaskPayload,
@@ -10,45 +10,9 @@ import {
   User,
 } from "@/types/task";
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL ?? "http://localhost:8080";
+import { downloadBlob, request, websocketURL } from "@/lib/http";
 
-export class ApiError extends Error {
-  status: number;
-  fields?: FieldErrors;
-
-  constructor(message: string, status: number, fields?: FieldErrors) {
-    super(message);
-    this.name = "ApiError";
-    this.status = status;
-    this.fields = fields;
-  }
-}
-
-type RequestOptions = RequestInit & {
-  token?: string | null;
-};
-
-async function request<T>(path: string, options: RequestOptions = {}) {
-  const headers = new Headers(options.headers);
-  if (options.body && !headers.has("Content-Type")) {
-    headers.set("Content-Type", "application/json");
-  }
-  if (options.token) {
-    headers.set("Authorization", `Bearer ${options.token}`);
-  }
-
-  const response = await fetch(`${API_BASE_URL}${path}`, { ...options, headers });
-  if (response.status === 204) {
-    return undefined as T;
-  }
-
-  const body = await response.json().catch(() => null);
-  if (!response.ok) {
-    const apiError = body?.error;
-    throw new ApiError(apiError?.message ?? "Request failed.", response.status, apiError?.fields);
-  }
-  return body as T;
-}
+export { ApiError } from "@/lib/http";
 
 function queryString(params: TaskListParams) {
   const query = new URLSearchParams({
@@ -60,13 +24,6 @@ function queryString(params: TaskListParams) {
   if (params.status) query.set("status", params.status);
   if (params.q) query.set("q", params.q);
   return query.toString();
-}
-
-function websocketURL(path: string, token: string) {
-  const url = new URL(path, API_BASE_URL);
-  url.protocol = url.protocol === "https:" ? "wss:" : "ws:";
-  url.searchParams.set("token", token);
-  return url.toString();
 }
 
 export const api = {
@@ -94,6 +51,24 @@ export const api = {
   },
   listTaskActivity(taskId: string, token: string) {
     return request<ActivityLog[]>(`/tasks/${taskId}/activity`, { token });
+  },
+  listTaskAttachments(taskId: string, token: string) {
+    return request<TaskAttachment[]>(`/tasks/${taskId}/attachments`, { token });
+  },
+  uploadTaskAttachment(taskId: string, file: File, token: string) {
+    const body = new FormData();
+    body.append("file", file);
+    return request<TaskAttachment>(`/tasks/${taskId}/attachments`, {
+      method: "POST",
+      token,
+      body,
+    });
+  },
+  downloadTaskAttachment(taskId: string, attachmentId: string, token: string) {
+    return downloadBlob(`/tasks/${taskId}/attachments/${attachmentId}/download`, token);
+  },
+  deleteTaskAttachment(taskId: string, attachmentId: string, token: string) {
+    return request<void>(`/tasks/${taskId}/attachments/${attachmentId}`, { method: "DELETE", token });
   },
   createTask(payload: TaskPayload, token: string) {
     return request<Task>("/tasks", {

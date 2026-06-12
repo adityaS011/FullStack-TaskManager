@@ -11,6 +11,7 @@ internal/database       PostgreSQL connection and embedded migrations
 internal/auth           User repository, password hashing, JWT issuing/validation
 internal/task           Task domain service, validation, and PostgreSQL repository
 internal/activity       Activity log metadata, service, and PostgreSQL repository
+internal/attachment     Task file metadata, upload validation, and storage adapters
 internal/realtime       WebSocket hub for live task mutation events
 internal/httpx          Router, middleware, request handlers, response shape
 internal/validation     Shared validation helpers
@@ -27,6 +28,7 @@ internal/validation     Shared validation helpers
 
 Admin users are assigned through `ADMIN_EMAILS`. They can call `GET /admin/tasks` to list all users' tasks with owner email metadata.
 Task activity is available through `GET /tasks/{id}/activity` after the same task access check used by `GET /tasks/{id}`.
+Task attachments are stored through the attachment storage interface. The default local adapter writes file bytes to `UPLOAD_DIR` while PostgreSQL stores metadata and permissions stay tied to task access.
 
 ## Run
 

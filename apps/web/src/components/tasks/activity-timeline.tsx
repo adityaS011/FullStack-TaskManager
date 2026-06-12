@@ -1,6 +1,6 @@
 "use client";
 
-import { formatDate, formatDateTime, titleCase } from "@/lib/utils";
+import { formatBytes, formatDate, formatDateTime, titleCase } from "@/lib/utils";
 import { ActivityChange, ActivityLog } from "@/types/task";
 
 type ActivityTimelineProps = {
@@ -51,6 +51,14 @@ function ActivityDetails({ log }: { log: ActivityLog }) {
     );
   }
 
+  if (log.action === "attachment.added" || log.action === "attachment.deleted") {
+    return (
+      <div className="mt-3 rounded-md bg-surface px-3 py-2 text-sm text-muted-foreground">
+        {log.metadata.fileName ?? "Attachment"} ({formatBytes(log.metadata.sizeBytes ?? 0)})
+      </div>
+    );
+  }
+
   const changes = Object.entries(log.metadata.changes ?? {});
   if (changes.length === 0) return null;
 
@@ -69,6 +77,8 @@ function ActivityDetails({ log }: { log: ActivityLog }) {
 }
 
 function activityTitle(log: ActivityLog) {
+  if (log.action === "attachment.added") return "Added attachment";
+  if (log.action === "attachment.deleted") return "Deleted attachment";
   if (log.action === "task.created") return "Created task";
   if (log.action === "task.completed") return "Marked task complete";
   return "Updated task";

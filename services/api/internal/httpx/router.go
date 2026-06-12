@@ -4,6 +4,7 @@ import (
 	"net/http"
 
 	"vector-task-api/internal/activity"
+	"vector-task-api/internal/attachment"
 	"vector-task-api/internal/auth"
 	"vector-task-api/internal/config"
 	"vector-task-api/internal/realtime"
@@ -14,11 +15,12 @@ import (
 )
 
 type Dependencies struct {
-	Activity *activity.Service
-	Auth     *auth.Service
-	Config   config.Config
-	Realtime *realtime.Hub
-	Tasks    *task.Service
+	Activity    *activity.Service
+	Attachments *attachment.Service
+	Auth        *auth.Service
+	Config      config.Config
+	Realtime    *realtime.Hub
+	Tasks       *task.Service
 }
 
 func NewRouter(deps Dependencies) http.Handler {
@@ -34,6 +36,9 @@ func NewRouter(deps Dependencies) http.Handler {
 	}
 	taskHandler := taskEndpoints{activity: deps.Activity, events: deps.Realtime, service: deps.Tasks}
 	activityHandler := activityEndpoints{activity: deps.Activity, tasks: deps.Tasks}
+	attachmentHandler := attachmentEndpoints{
+		activity: deps.Activity, attachments: deps.Attachments, events: deps.Realtime, tasks: deps.Tasks,
+	}
 
 	r.Get("/health", func(w http.ResponseWriter, r *http.Request) {
 		writeJSON(w, http.StatusOK, map[string]string{"status": "ok"})
@@ -48,6 +53,10 @@ func NewRouter(deps Dependencies) http.Handler {
 		r.Use(requireAuth(deps.Auth))
 		r.Post("/tasks", taskHandler.create)
 		r.Get("/tasks", taskHandler.list)
+		r.Post("/tasks/{id}/attachments", attachmentHandler.upload)
+		r.Get("/tasks/{id}/attachments", attachmentHandler.list)
+		r.Get("/tasks/{id}/attachments/{attachmentID}/download", attachmentHandler.download)
+		r.Delete("/tasks/{id}/attachments/{attachmentID}", attachmentHandler.delete)
 		r.Get("/tasks/{id}/activity", activityHandler.list)
 		r.Get("/tasks/{id}", taskHandler.get)
 		r.Patch("/tasks/{id}", taskHandler.update)

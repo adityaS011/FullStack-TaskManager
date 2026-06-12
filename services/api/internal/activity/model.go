@@ -3,9 +3,11 @@ package activity
 import "time"
 
 const (
-	TaskCompleted = "task.completed"
-	TaskCreated   = "task.created"
-	TaskUpdated   = "task.updated"
+	AttachmentAdded   = "attachment.added"
+	AttachmentDeleted = "attachment.deleted"
+	TaskCompleted     = "task.completed"
+	TaskCreated       = "task.created"
+	TaskUpdated       = "task.updated"
 )
 
 type Metadata map[string]any

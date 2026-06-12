@@ -24,11 +24,14 @@ services:
       JWT_SECRET: ${JWT_SECRET:-replace-with-a-long-random-secret}
       CORS_ORIGIN: ${CORS_ORIGIN:-http://localhost:3000}
       ADMIN_EMAILS: ${ADMIN_EMAILS:-admin@example.com}
+      UPLOAD_DIR: ${UPLOAD_DIR:-/data/uploads}
     depends_on:
       db:
         condition: service_healthy
     ports:
       - "8080:8080"
+    volumes:
+      - api-uploads:/data/uploads
 
   web:
     build:
@@ -44,3 +47,4 @@ services:
 
 volumes:
   postgres-data:
+  api-uploads:

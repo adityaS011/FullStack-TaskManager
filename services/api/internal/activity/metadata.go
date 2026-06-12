@@ -13,6 +13,10 @@ func CreatedMetadata(item task.Task) Metadata {
 	}
 }
 
+func AttachmentMetadata(fileName, contentType string, sizeBytes int64) Metadata {
+	return Metadata{"fileName": fileName, "contentType": contentType, "sizeBytes": sizeBytes}
+}
+
 func UpdatedMetadata(before, after task.Task) Metadata {
 	changes := map[string]Change{}
 	addChange(changes, "title", before.Title, after.Title)

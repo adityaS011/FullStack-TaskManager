@@ -5,10 +5,11 @@ import { useCallback, useEffect, useState } from "react";
 import { useTaskRealtime } from "@/components/tasks/use-task-realtime";
 import { useAuth } from "@/context/auth-context";
 import { api, ApiError } from "@/lib/api";
-import { ActivityLog, Task } from "@/types/task";
+import { ActivityLog, Task, TaskAttachment } from "@/types/task";
 
 type TaskDetailData = {
   activity: ActivityLog[];
+  attachments: TaskAttachment[];
   error: string;
   loading: boolean;
   task: Task | null;
@@ -17,7 +18,7 @@ type TaskDetailData = {
 export function useTaskDetail(taskId: string) {
   const { token } = useAuth();
   const [data, setData] = useState<TaskDetailData>({
-    activity: [], error: "", loading: true, task: null,
+    activity: [], attachments: [], error: "", loading: true, task: null,
   });
 
   const loadTask = useCallback(async (options?: { quiet?: boolean }) => {
@@ -26,11 +27,12 @@ export function useTaskDetail(taskId: string) {
       ...current, error: "", loading: options?.quiet ? current.loading : true,
     }));
     try {
-      const [task, activity] = await Promise.all([
+      const [task, activity, attachments] = await Promise.all([
         api.getTask(taskId, token),
         api.listTaskActivity(taskId, token),
+        api.listTaskAttachments(taskId, token),
       ]);
-      setData({ activity, error: "", loading: false, task });
+      setData({ activity, attachments, error: "", loading: false, task });
     } catch (err) {
       setData((current) => ({
         ...current,
@@ -48,5 +50,5 @@ export function useTaskDetail(taskId: string) {
     if (event.taskId === taskId) void loadTask({ quiet: true });
   });
 
-  return data;
+  return { ...data, refresh: () => loadTask({ quiet: true }) };
 }
