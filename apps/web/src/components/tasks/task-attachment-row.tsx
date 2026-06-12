@@ -19,10 +19,10 @@ export function AttachmentRow({
   onDownload,
 }: AttachmentRowProps) {
   return (
-    <li className="flex flex-col gap-3 p-3 sm:flex-row sm:items-center sm:justify-between">
+    <li className="flex flex-col gap-2 p-2.5 sm:flex-row sm:items-center sm:justify-between">
       <div className="flex min-w-0 items-start gap-3">
-        <span className="mt-0.5 rounded-md border border-border bg-surface p-2 text-blue-700 dark:text-blue-200">
-          <AppIcon name="file" size={18} />
+        <span className="mt-0.5 rounded-md border border-border bg-surface p-1.5 text-blue-700 dark:text-blue-200">
+          <AppIcon name="file" size={16} />
         </span>
         <div className="min-w-0">
           <p className="break-words text-sm font-semibold">{attachment.fileName}</p>
@@ -35,6 +35,7 @@ export function AttachmentRow({
       <div className="flex shrink-0 items-center gap-2">
         <Button
           aria-label={`Download ${attachment.fileName}`}
+          className="h-8 w-8"
           disabled={busy}
           title="Download"
           variant="icon"
@@ -48,6 +49,7 @@ export function AttachmentRow({
         </Button>
         <Button
           aria-label={`Delete ${attachment.fileName}`}
+          className="h-8 w-8"
           disabled={busy}
           title="Delete"
           variant="icon"

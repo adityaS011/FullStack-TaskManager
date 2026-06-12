@@ -31,11 +31,11 @@ export function TaskAttachments({ attachments, taskId, onChanged }: TaskAttachme
   }
 
   return (
-    <section className="rounded-lg border border-border bg-surface p-5 shadow-sm">
-      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+    <section className="rounded-lg border border-border bg-surface p-4 shadow-sm">
+      <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <h2 className="text-lg font-semibold">Attachments</h2>
-          <p className="mt-1 text-sm text-muted-foreground">
+          <p className="text-sm text-muted-foreground">
             {attachments.length} {attachments.length === 1 ? "file" : "files"}
           </p>
         </div>
@@ -46,7 +46,7 @@ export function TaskAttachments({ attachments, taskId, onChanged }: TaskAttachme
           type="file"
           onChange={uploadSelected}
         />
-        <Button disabled={busy === "upload"} onClick={() => inputRef.current?.click()}>
+        <Button className="h-9 px-3" disabled={busy === "upload"} onClick={() => inputRef.current?.click()}>
           <AppIcon
             className={busy === "upload" ? "animate-spin" : ""}
             name={busy === "upload" ? "loader" : "paperclip"}
@@ -55,16 +55,16 @@ export function TaskAttachments({ attachments, taskId, onChanged }: TaskAttachme
         </Button>
       </div>
       {error && (
-        <div className="mt-4 rounded-md border border-rose-200 bg-rose-50 px-3 py-2 text-sm text-rose-700 dark:border-rose-900 dark:bg-rose-950 dark:text-rose-200">
+        <div className="mt-3 rounded-md border border-rose-200 bg-rose-50 px-3 py-2 text-sm text-rose-700 dark:border-rose-900 dark:bg-rose-950 dark:text-rose-200">
           {error}
         </div>
       )}
       {attachments.length === 0 ? (
-        <div className="mt-4 rounded-lg border border-dashed border-border p-5 text-sm text-muted-foreground">
+        <div className="mt-3 rounded-lg border border-dashed border-border p-4 text-sm text-muted-foreground">
           No attachments yet.
         </div>
       ) : (
-        <ul className="mt-4 divide-y divide-border rounded-lg border border-border bg-background">
+        <ul className="mt-3 divide-y divide-border rounded-lg border border-border bg-background">
           {attachments.map((attachment) => (
             <AttachmentRow
               attachment={attachment}
