@@ -7,6 +7,7 @@ import {
   TaskFormFields,
   TaskFormState,
 } from "@/components/tasks/task-form-fields";
+import { TaskFormAttachments } from "@/components/tasks/task-form-attachments";
 import { Button } from "@/components/ui/button";
 import { cn, toDateInput } from "@/lib/utils";
 import { FieldErrors, Task, TaskPayload } from "@/types/task";
@@ -25,11 +26,12 @@ type TaskFormProps = {
   serverErrors: FieldErrors;
   className?: string;
   onCancel: () => void;
-  onSubmit: (payload: TaskPayload) => Promise<void>;
+  onSubmit: (payload: TaskPayload, attachments: File[]) => Promise<void>;
 };
 
 export function TaskForm({ task, saving, serverErrors, className, onCancel, onSubmit }: TaskFormProps) {
   const [payload, setPayload] = useState<TaskFormState>(() => getInitialPayload(task));
+  const [attachments, setAttachments] = useState<File[]>([]);
   const [errors, setErrors] = useState<FieldErrors>({});
 
   async function submit(event: FormEvent<HTMLFormElement>) {
@@ -42,7 +44,15 @@ export function TaskForm({ task, saving, serverErrors, className, onCancel, onSu
       dueDate: payload.dueDate
         ? new Date(`${payload.dueDate}T12:00:00.000Z`).toISOString()
         : "",
-    });
+    }, attachments);
+  }
+
+  function addAttachments(files: File[]) {
+    setAttachments((current) => [...current, ...files]);
+  }
+
+  function removeAttachment(index: number) {
+    setAttachments((current) => current.filter((_, currentIndex) => currentIndex !== index));
   }
 
   return (
@@ -61,6 +71,14 @@ export function TaskForm({ task, saving, serverErrors, className, onCancel, onSu
         errors={{ ...serverErrors, ...errors }}
         onChange={setPayload}
       />
+      <div className="mt-4">
+        <TaskFormAttachments
+          disabled={saving}
+          files={attachments}
+          onAdd={addAttachments}
+          onRemove={removeAttachment}
+        />
+      </div>
       <Button className="mt-4 w-full" disabled={saving} type="submit">
         <AppIcon className={saving ? "animate-spin" : ""} name={saving ? "loader" : "save"} size={16} />
         Save task

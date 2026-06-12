@@ -3,6 +3,7 @@
 import { ChangeEvent, useRef, useState } from "react";
 
 import { AppIcon } from "@/components/icons/app-icon";
+import { acceptedAttachmentTypes } from "@/components/tasks/attachment-config";
 import { AttachmentRow } from "@/components/tasks/task-attachment-row";
 import { useTaskAttachmentActions } from "@/components/tasks/use-task-attachment-actions";
 import { Button } from "@/components/ui/button";
@@ -14,14 +15,6 @@ type TaskAttachmentsProps = {
   taskId: string;
   onChanged: () => Promise<void> | void;
 };
-
-const acceptedTypes = [
-  "image/*",
-  ".pdf",
-  ".txt",
-  ".doc",
-  ".docx",
-].join(",");
 
 export function TaskAttachments({ attachments, taskId, onChanged }: TaskAttachmentsProps) {
   const inputRef = useRef<HTMLInputElement>(null);
@@ -48,7 +41,7 @@ export function TaskAttachments({ attachments, taskId, onChanged }: TaskAttachme
         </div>
         <input
           ref={inputRef}
-          accept={acceptedTypes}
+          accept={acceptedAttachmentTypes}
           className="hidden"
           type="file"
           onChange={uploadSelected}

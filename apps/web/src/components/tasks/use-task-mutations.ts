@@ -28,16 +28,25 @@ export function useTaskMutations({
   setServerErrors,
   token,
 }: TaskMutationParams) {
-  async function saveTask(payload: TaskPayload) {
+  async function saveTask(payload: TaskPayload, attachments: File[] = []) {
     if (!token) return;
     setSaving(true);
     setServerErrors({});
+    let savedTask: Task | null = null;
     try {
-      if (editing) await api.updateTask(editing.id, payload, token);
-      else await api.createTask(payload, token);
+      savedTask = editing
+        ? await api.updateTask(editing.id, payload, token)
+        : await api.createTask(payload, token);
+      await uploadAttachments(savedTask.id, attachments, token);
       closeForm();
       await loadTasks();
     } catch (err) {
+      if (savedTask) {
+        closeForm();
+        await loadTasks();
+        setError(attachmentErrorMessage(err));
+        return;
+      }
       setError(err instanceof ApiError ? err.message : "Unable to save task.");
       if (err instanceof ApiError) setServerErrors(err.fields ?? {});
     } finally {
@@ -74,4 +83,15 @@ export function useTaskMutations({
   }
 
   return { completeTask, deleteTask, saveTask };
+}
+
+async function uploadAttachments(taskId: string, attachments: File[], token: string) {
+  for (const file of attachments) {
+    await api.uploadTaskAttachment(taskId, file, token);
+  }
+}
+
+function attachmentErrorMessage(err: unknown) {
+  const message = err instanceof ApiError ? err.message : "Unable to upload one or more attachments.";
+  return `Task saved, but attachments could not be uploaded. ${message}`;
 }
