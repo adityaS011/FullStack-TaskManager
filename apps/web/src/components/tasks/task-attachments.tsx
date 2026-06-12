@@ -8,15 +8,22 @@ import { AttachmentRow } from "@/components/tasks/task-attachment-row";
 import { useTaskAttachmentActions } from "@/components/tasks/use-task-attachment-actions";
 import { Button } from "@/components/ui/button";
 import { ConfirmDialog } from "@/components/ui/confirm-dialog";
+import { cn } from "@/lib/utils";
 import { TaskAttachment } from "@/types/task";
 
 type TaskAttachmentsProps = {
   attachments: TaskAttachment[];
   taskId: string;
+  variant?: "card" | "embedded";
   onChanged: () => Promise<void> | void;
 };
 
-export function TaskAttachments({ attachments, taskId, onChanged }: TaskAttachmentsProps) {
+export function TaskAttachments({
+  attachments,
+  taskId,
+  variant = "card",
+  onChanged,
+}: TaskAttachmentsProps) {
   const inputRef = useRef<HTMLInputElement>(null);
   const [pendingDelete, setPendingDelete] = useState<TaskAttachment | null>(null);
   const { busy, clearError, deleteAttachment, downloadAttachment, error, uploadFile } =
@@ -31,10 +38,16 @@ export function TaskAttachments({ attachments, taskId, onChanged }: TaskAttachme
   }
 
   return (
-    <section className="rounded-lg border border-border bg-surface p-4 shadow-sm">
+    <section
+      className={cn(
+        variant === "card" && "rounded-lg border border-border bg-surface p-4 shadow-sm",
+      )}
+    >
       <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h2 className="text-lg font-semibold">Attachments</h2>
+          <h2 className={cn("font-semibold", variant === "card" ? "text-lg" : "text-base")}>
+            Attachments
+          </h2>
           <p className="text-sm text-muted-foreground">
             {attachments.length} {attachments.length === 1 ? "file" : "files"}
           </p>
@@ -46,7 +59,11 @@ export function TaskAttachments({ attachments, taskId, onChanged }: TaskAttachme
           type="file"
           onChange={uploadSelected}
         />
-        <Button className="h-9 px-3" disabled={busy === "upload"} onClick={() => inputRef.current?.click()}>
+        <Button
+          className="h-9 px-3"
+          disabled={busy === "upload"}
+          onClick={() => inputRef.current?.click()}
+        >
           <AppIcon
             className={busy === "upload" ? "animate-spin" : ""}
             name={busy === "upload" ? "loader" : "paperclip"}
