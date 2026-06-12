@@ -4,6 +4,7 @@ import Link from "next/link";
 
 import { AppIcon } from "@/components/icons/app-icon";
 import { ActivityTimeline } from "@/components/tasks/activity-timeline";
+import { TaskDetailEditor } from "@/components/tasks/task-detail-editor";
 import { TaskDetailSidebar } from "@/components/tasks/task-detail-sidebar";
 import { useTaskDetail } from "@/components/tasks/use-task-detail";
 import { formatDateTime } from "@/lib/utils";
@@ -42,9 +43,12 @@ export function TaskDetailPage({ taskId }: TaskDetailPageProps) {
       <div className="mx-auto grid max-w-7xl gap-3 px-4 py-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between gap-3">
           <BackLink />
-          <span className="hidden text-sm font-medium text-muted-foreground sm:inline">
-            Task {task.id.slice(0, 8)}
-          </span>
+          <div className="flex items-center gap-3">
+            <span className="hidden text-sm font-medium text-muted-foreground sm:inline">
+              Task {task.id.slice(0, 8)}
+            </span>
+            <TaskDetailEditor task={task} onSaved={refresh} />
+          </div>
         </div>
         <div className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_380px]">
           <main className="min-w-0 rounded-lg border border-border bg-surface shadow-sm">
