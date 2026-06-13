@@ -1,6 +1,9 @@
 import { FieldErrors } from "@/types/task";
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL ?? "http://localhost:8080";
+const LOCAL_API_BASE_URL = "http://localhost:8080";
+const DEPLOYED_CONFIG_ERROR =
+  "Missing NEXT_PUBLIC_API_BASE_URL. Set it to the deployed API URL and redeploy the web service.";
+const configuredAPIBaseURL = process.env.NEXT_PUBLIC_API_BASE_URL?.trim();
 
 export class ApiError extends Error {
   status: number;
@@ -28,7 +31,7 @@ export async function request<T>(path: string, options: RequestOptions = {}) {
     headers.set("Authorization", `Bearer ${options.token}`);
   }
 
-  const response = await fetch(`${API_BASE_URL}${path}`, { ...options, headers });
+  const response = await fetch(`${getAPIBaseURL()}${path}`, { ...options, headers });
   if (response.status === 204) {
     return undefined as T;
   }
@@ -42,7 +45,7 @@ export async function request<T>(path: string, options: RequestOptions = {}) {
 }
 
 export async function downloadBlob(path: string, token: string) {
-  const response = await fetch(`${API_BASE_URL}${path}`, {
+  const response = await fetch(`${getAPIBaseURL()}${path}`, {
     headers: { Authorization: `Bearer ${token}` },
   });
   if (!response.ok) {
@@ -54,8 +57,30 @@ export async function downloadBlob(path: string, token: string) {
 }
 
 export function websocketURL(path: string, token: string) {
-  const url = new URL(path, API_BASE_URL);
+  const url = new URL(path, getAPIBaseURL());
   url.protocol = url.protocol === "https:" ? "wss:" : "ws:";
   url.searchParams.set("token", token);
   return url.toString();
+}
+
+export function resolveAPIBaseURL(configured = configuredAPIBaseURL, hostname = currentHostname()) {
+  if (configured) {
+    return configured.replace(/\/$/, "");
+  }
+  if (isLocalHost(hostname)) {
+    return LOCAL_API_BASE_URL;
+  }
+  throw new ApiError(DEPLOYED_CONFIG_ERROR, 500);
+}
+
+function getAPIBaseURL() {
+  return resolveAPIBaseURL();
+}
+
+function currentHostname() {
+  return typeof window === "undefined" ? "" : window.location.hostname;
+}
+
+function isLocalHost(hostname: string) {
+  return hostname === "" || hostname === "localhost" || hostname === "127.0.0.1";
 }
