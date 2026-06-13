@@ -106,4 +106,4 @@ Task routes require `Authorization: Bearer <token>`. Members only access their o
 - JWTs are stored in local storage for assessment simplicity. A production consumer app should consider httpOnly refresh-token cookies.
 - Admin access is opt-in via `ADMIN_EMAILS`, avoiding a public role selector during signup.
 - Activity history is retained for existing tasks. Deleted tasks cascade their activity with the current schema.
-- File attachments are left as a future extension to keep the core assignment focused and reliable.
+- File attachments use the local storage adapter by default. Deployments should mount persistent storage or swap in object storage for durable files.
